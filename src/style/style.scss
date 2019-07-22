@@ -1,0 +1,23 @@
+.form-group {
+    div {
+        small {
+            color: #dc3545;
+        }
+    }
+    .iban {
+        position: relative;
+       .spinner {
+           position: absolute;
+           top: 0;
+           right: 0;
+       }
+    }
+}
+
+.home {
+    .group-button {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+}
