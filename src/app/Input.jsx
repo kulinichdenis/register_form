@@ -1,7 +1,7 @@
 import React from 'react'
 
-const Input = ({ name, onChange, label, value, onBlur, valid, children }) => {
-    const validClass = valid === true ? "is-valid" : valid === false ? "is-invalid" : ""; 
+const Input = ({ name, onChange, label, value, onBlur, inValid, children }) => {
+    const validClass = inValid ? "is-invalid" : inValid !== null ? "is-valid" : "";
     return (
         <div className="row col-8">
            <label htmlFor={name}>{label}</label>

@@ -5,19 +5,12 @@ import useAlert from "./useAlert";
 
 const App = () => {
     const [showAlert, toggleAlert] = useAlert();
-    const [
-        values,
-        valid,
-        changeValue,
-        onBlur,
-        onSubmit,
-        pending,
-        validating
-    ] = useForm(
-        { name: "", lastname: "" },
-        { lastname: true},
+    const [ values, inValid, changeValue, onBlur, onSubmit, pending, validating] = useForm(
+        { name: "", lastname: "", email: "" },
+        { lastname: true}, // async field
         toggleAlert,
     );
+    console.log(inValid);
     return (
         <>
             {showAlert && <div className="alert alert-success" role="alert">Your data sended</div>}
@@ -28,17 +21,30 @@ const App = () => {
                     name="name"
                     onChange={changeValue}
                     onBlur={onBlur}
-                    valid={valid.name}
-                />
+                    inValid={inValid.name}
+                >
+                    <div className="invalid-feedback">{inValid.name}</div>
+                </Input>
                 <Input
                     label="Last Name"   
                     value={values.lastname}
                     name="lastname"
                     onChange={changeValue}
                     onBlur={onBlur}
-                    valid={valid.lastname}
+                    inValid={inValid.lastname}
                 >
+                    <div className="invalid-feedback">{inValid.lastname}</div>
                     {pending.lastname && <div className="spinner-border text-success" role="status" />}
+                </Input>
+                <Input
+                    label="Email"
+                    value={values.email}
+                    name="email"
+                    onChange={changeValue}
+                    onBlur={onBlur}
+                    inValid={inValid.email}
+                >
+                    <div className="invalid-feedback">{inValid.email}</div>
                 </Input>
                 <button disabled={validating}>Submit</button>
             </form>

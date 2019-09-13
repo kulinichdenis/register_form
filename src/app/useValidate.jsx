@@ -1,16 +1,6 @@
 import React, { useState, useMemo } from 'react';
-// import { validation } from "./utils/validate";
-
-const validation = (name, value) => {
-    switch(name) {
-        case "name":
-            return value.length > 4 ? true : false;
-        case "lastname":
-            return value.length > 4 ? true : false;
-        default:
-            return false;
-    }
-}
+import { validation } from "./utils/validate";
+import { defer } from 'rxjs';
 
 const validIBAN = async (value) => {
     try {
@@ -27,8 +17,7 @@ const validIBAN = async (value) => {
     }
   };
 
-const mockServer = (timer, value) => new Promise((res) => setTimeout(() => res(value), timer));
-
+let sub$;
 const useValidate = (values, asyncField) => {
     const defaultValidation = useMemo(() => {
         return Object.keys(values).reduce((object, key) => { 
@@ -36,34 +25,64 @@ const useValidate = (values, asyncField) => {
             return object;
         }, {});
     }, []);
-    const [pending, setPending] = useState({ lastname: false });
-    const [valid, setValid] = useState(defaultValidation); 
-    const [validating, setValidating] = useState(false);
 
-    const clearValidate = () => setValid(defaultValidation);
+    const [pending, setPending] = useState({ lastname: false });
+    const [inValid, setInValid] = useState(defaultValidation); 
+    const [validating, setValidating] = useState(false);
+    const clearValidate = () => setInValid(defaultValidation);
 
     const syncValidation = (name) => {
-        setValid((prevValid) => ({...prevValid, [name]: validation(name, values[name])}));
+        setInValid((prevValid) => ({...prevValid, [name]: validation(name, values[name])}));
     }
 
-    const asyncValidation = async (name) => {
+    const _asyncValidation = async (name) => {
         let status = false;
         setPending((prevPeding) => ({...prevPeding, [name]: true}));
         setValidating((prevStatus) => !prevStatus);
-        setValid((prevValid) => ({...prevValid, [name]: null}));
+        setInValid((prevValid) => ({...prevValid, [name]: null}));
         const result = await validation(name, values[name]);
-
         if (result) {
             try {
-                status = await mockServer(4000, true);
+               status = await validIBAN(values[name]);
             } catch(e) {
-                // error setError set here;
+                // error setError;
             }
         }
-        
         setPending((prevPeding) => ({...prevPeding, [name]: false}));
         setValidating((prevStatus) => !prevStatus); 
-        setValid((prevValid) => ({...prevValid, [name]: status}));
+        setInValid((prevValid) => ({...prevValid, [name]: status}));
+    }
+
+    const asyncValidation = (name) => {
+        if (sub$) { sub$.unsubscribe(); }
+        sub$ = defer(async () => {
+            let status;
+            setPending((prevPending) => ({...prevPending, [name]: true}));
+            setValidating((prevStatus) => !prevStatus);
+            setInValid((prevValid) => ({...prevValid, [name]: null}));
+            const result = validation(name, values[name]);
+            if (!result) {
+                try {
+                    status = await validIBAN(values[name]);
+                } catch(e) {
+                    throw new Error(e);
+                }
+            } else {
+                throw result;
+            }
+            return status;
+        }).subscribe({
+            next: (result) => {
+                setInValid((prevValid) => ({...prevValid, [name]: !result}));
+                setValidating((prevStatus) => !prevStatus);
+                setPending((prevPeding) => ({...prevPeding, [name]: false }));
+            },
+            error: (error) => {
+                setInValid((prevValid) => ({...prevValid, [name]: error }));
+                setValidating((prevStatus) => !prevStatus);
+                setPending((prevPeding) => ({...prevPeding, [name]: false }));
+            }
+        });
     }
 
     const validate = (name) => {
@@ -71,24 +90,18 @@ const useValidate = (values, asyncField) => {
             asyncValidation(name); 
         } else {
             syncValidation(name);
-        }  
-    }
-
-    const validatingAllFields = async () => {
-        const keys = Object.keys(values);
-        for (let i = 0; i < keys.length; i++) {
-            if (valid[keys[i]]) {
-                continue;
-            }
-            if (asyncField[keys[i]]) {
-                await asyncValidation(keys[i]);
-            } else {
-                syncValidation(keys[i]);
-            }
         }
     }
 
-    return [valid, validate, clearValidate, validating, pending, validatingAllFields];
+    const validatingAllFields = async () => {
+        const keys = Object.keys(inValid);
+        for (let i = 0; i < keys.length; i++) {
+            const name = keys[i]; 
+            if (!inValid[name]) { setInValid((prevInValid) => ({...prevInValid, [name]: true})); }
+        }
+    }
+    
+    return [inValid, validate, clearValidate, validating, pending, validatingAllFields];
 }
 
 export default useValidate;

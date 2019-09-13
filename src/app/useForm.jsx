@@ -1,19 +1,14 @@
 import React, { useState } from 'react'
-    import useValidate from "./useValidate";
+import useValidate from "./useValidate";
 
 const useForm = (defaultValues, asyncField, callback) => {
     const [values, setValues] = useState(defaultValues);
-    const [ valid, validate,
-        clearValidate,
-        validating,
-        pending,
-        validatingAllFields
-    ] = useValidate(values, asyncField);
+    const [inValid, validate, clearValidate, validating, pending, validatingAllFields] = useValidate(values, asyncField);
 
     const validAllFields = () => {
-        const keys = Object.keys(valid);
+        const keys = Object.keys(inValid);
         if (!keys.length) return false;
-        return keys.every((key) => valid[key] === true);
+        return keys.every((key) => inValid[key] === true);
     }
     
     const clearAllFields = () => setValues({...defaultValues});
@@ -27,15 +22,14 @@ const useForm = (defaultValues, asyncField, callback) => {
 
     const onSubmit = async (event) => {
         event.preventDefault();
-        await validatingAllFields();
+        validatingAllFields();
         if (validAllFields()) { 
             clearValidate();
             clearAllFields();
             callback();
         }
     };
-
-    return [values, valid, changeValue, onBlur, onSubmit, pending, validating];
+    return [values, inValid, changeValue, onBlur, onSubmit, pending, validating];
 }
 
 export default useForm

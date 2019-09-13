@@ -69,6 +69,18 @@ const ibanValidate = async(value) => {
   }
 }
 
+const validation = (name, value) => {
+  switch(name) {
+      case "name":
+          return /^[A-Z]{1}[a-z]+$/.test(value) ? false : "Error";
+      case "lastname":
+          return /^[A-Z]{1}[a-z]+$/.test(value) ? false : "Error";
+      case "email":
+          return /[^@]+@[^@.]+\.[^@.]+/.test(value) ? false : "Incorrect format";
+      default:
+          return false;
+  }
+}
 
 
-export { validateFiels, ibanValidate }
+export { validation, ibanValidate }

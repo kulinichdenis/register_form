@@ -5,5 +5,5 @@
 4) open in browser by address: http://localhost:8081
 
 Task:
- - disable previous request;
- - add correct style;
+ - add typescript;
+ - add test for component;
