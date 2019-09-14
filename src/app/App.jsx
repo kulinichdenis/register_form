@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import useForm from "./useForm";
+import { useForm, useAlert } from "./customHooks";
 import Input from "./Input";
-import useAlert from "./useAlert";
 
 const App = () => {
     const [showAlert, toggleAlert] = useAlert();
@@ -10,7 +9,6 @@ const App = () => {
         { lastname: true}, // async field
         toggleAlert,
     );
-    console.log(inValid);
     return (
         <>
             {showAlert && <div className="alert alert-success" role="alert">Your data sended</div>}
@@ -46,7 +44,7 @@ const App = () => {
                 >
                     <div className="invalid-feedback">{inValid.email}</div>
                 </Input>
-                <button disabled={validating}>Submit</button>
+                <button type="submit" disabled={validating}>Submit</button>
             </form>
         </>
     )

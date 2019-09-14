@@ -8,7 +8,7 @@ const useForm = (defaultValues, asyncField, callback) => {
     const validAllFields = () => {
         const keys = Object.keys(inValid);
         if (!keys.length) return false;
-        return keys.every((key) => inValid[key] === true);
+        return keys.every((key) => inValid[key] === false);
     }
     
     const clearAllFields = () => setValues({...defaultValues});

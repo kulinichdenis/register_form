@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { delay } from "./utils/utils";
+import { delay } from "../utils/utils";
 
 const useAlert = () => {
     const [showAlert, setStatusAlert] = useState(false);
