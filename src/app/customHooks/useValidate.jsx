@@ -42,12 +42,12 @@ const useValidate = (values, asyncField) => {
             next: (result) => {
                 setInValid((prevValid) => ({...prevValid, [name]: !result}));
                 setValidating((prevStatus) => !prevStatus);
-                setPending((prevPeding) => ({...prevPeding, [name]: false }));
+                setPending((prevPeding) => ({...prevPeding, [name]: false}));
             },
             error: (error) => {
-                setInValid((prevValid) => ({...prevValid, [name]: error }));
+                setInValid((prevValid) => ({...prevValid, [name]: error}));
                 setValidating((prevStatus) => !prevStatus);
-                setPending((prevPeding) => ({...prevPeding, [name]: false }));
+                setPending((prevPeding) => ({...prevPeding, [name]: false}));
             }
         });
     }
