@@ -12,13 +12,15 @@ describe("App component", () => {
     beforeEach(() => {
         wrapper = mount(<App />);
     });
+
     it("render form and button", () => {
         const button = wrapper.find("button").length;
         const form = wrapper.find("form").length;
         expect(form).toBe(1);
         expect(button).toBe(1);
     });
-    it("submit value from form", async () => {
+
+    it("should all fields is invalid", async () => {
         wrapper.find('input[name="name"]').simulate("blur");
         wrapper.find('input[name="email"]').simulate("blur");
         await act(async() => {
@@ -27,22 +29,42 @@ describe("App component", () => {
         act(() => { wrapper.update();});
         expect(wrapper.find('.is-invalid').length).toBe(3);
     });
-    it("test async validation", async() => {
-        const name = wrapper.find('input[name="name"]').simulate('change', { target: { value: "Denys", name: "name"}});
-        name.simulate('blur');
-        expect(wrapper.find('input[name="name"]').props().value).toEqual("Denys");
-        expect(wrapper.find('.is-valid').length).toBe(1);
-        
-        const email = wrapper.find('input[name="email"]').simulate('change', { target: { value: "test@test.com", name: "email"}});
-        email.simulate('blur');
-        expect(wrapper.find('input[name="email"]').props().value).toEqual("test@test.com");
-    
-        const lastName = wrapper.find('input[name="lastname"]').simulate('change', { target: { value: "Kulinich", name: "lastname"}});
-        await act(async () => {
-            lastName.simulate('blur');    
+
+    describe("validate values and submit form", () => {
+        let name;
+        let email;
+        let lastname;
+        beforeEach(async () => {
+            name = wrapper.find('input[name="name"]').simulate('change', { target: { value: "Denys", name: "name"}});
+            name.simulate('blur');
+            email = wrapper.find('input[name="email"]').simulate('change', { target: { value: "test@test.com", name: "email"}});
+            email.simulate('blur');
+            lastname = wrapper.find('input[name="lastname"]').simulate('change', { target: { value: "Kulinich", name: "lastname"}});
+            await act(async () => { lastname.simulate('blur'); });
+            wrapper.update();
         });
-        expect(wrapper.find('input[name="lastname"]').props().value).toEqual("Kulinich");
-        wrapper.update();
-        expect(wrapper.find('.is-valid').length).toBe(3);
+
+        it("validation input values", async() => {
+            expect(wrapper.find('input[name="name"]').props().value).toEqual("Denys");
+            expect(wrapper.find('input[name="email"]').props().value).toEqual("test@test.com");
+            expect(wrapper.find('input[name="lastname"]').props().value).toEqual("Kulinich");
+            expect(wrapper.find('.is-valid').length).toBe(3);
+        });
+
+        it("submited form", async() => {
+            wrapper.find('form').simulate('submit');
+            expect(wrapper.find('input[name="name"]').props().value).toEqual("");
+            expect(wrapper.find('input[name="email"]').props().value).toEqual("");
+            expect(wrapper.find('input[name="lastname"]').props().value).toEqual("");
+        });
+
+        it("show and hide alert message", async () => {
+            wrapper.find('form').simulate('submit');
+            expect(wrapper.find('input[name="name"]').props().value).toEqual("");
+            expect(wrapper.find(".alert-success").length).toBe(1);
+            await act(async() => { await delay(3000); });
+            wrapper.update();
+            expect(wrapper.find('.alert-success').length).toBe(0);
+        });
     });
 })
