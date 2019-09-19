@@ -60,7 +60,6 @@ describe("App component", () => {
 
         it("show and hide alert message", async () => {
             wrapper.find('form').simulate('submit');
-            expect(wrapper.find('input[name="name"]').props().value).toEqual("");
             expect(wrapper.find(".alert-success").length).toBe(1);
             await act(async() => { await delay(3000); });
             wrapper.update();
